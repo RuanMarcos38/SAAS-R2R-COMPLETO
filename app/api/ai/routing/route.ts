@@ -5,7 +5,7 @@ import { authOptions,getIdentity } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { agentDepartments } from '@/lib/director';
 const schema=z.object({agentKey:z.string().min(1),provider:z.enum(['openai','anthropic'])}).strict();
-export const agentKeys=['director',...agentDepartments];
+const agentKeys=['director',...agentDepartments];
 export async function GET(){
  const identity=getIdentity(await getServerSession(authOptions));
  if(!identity)return NextResponse.json({error:'Não autenticado'},{status:401});
