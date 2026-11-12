@@ -50,7 +50,20 @@ try {
   });
   assert.equal(updated.status(),200,await updated.text());
 
-  // As configurações não podem revelar chaves nem permitir acesso anônimo.\n  const publicConfig=await page.request.get(BASE+'/api/ai/providers');\n  assert.equal(publicConfig.status(),200);\n  const serialized=JSON.stringify(await publicConfig.json());\n  assert.ok(!serialized.includes('encryptedApiKey'));\n  assert.ok(!serialized.includes('apiKey'));\n  await page.goto(BASE+'/ia-provedores',{waitUntil:'networkidle'});\n  await page.getByRole('heading',{name:'Conectar ChatGPT e Claude'}).waitFor();\n  await page.getByText('Anthropic — Claude').waitFor();\n  await page.screenshot({path:'test-results/screenshots/05-provedores-ia.png',fullPage:true});\n  const invalid=await page.request.put(BASE+'/api/ai/providers',{data:{provider:'anthropic',apiKey:'short'}});\n  assert.equal(invalid.status(),400);\n\n  // A central deve informar status verdadeiro e impedir acesso anônimo.
+  // As configurações não podem revelar chaves nem permitir acesso anônimo.
+  const publicConfig=await page.request.get(BASE+'/api/ai/providers');
+  assert.equal(publicConfig.status(),200);
+  const serialized=JSON.stringify(await publicConfig.json());
+  assert.ok(!serialized.includes('encryptedApiKey'));
+  assert.ok(!serialized.includes('apiKey'));
+  await page.goto(BASE+'/ia-provedores',{waitUntil:'networkidle'});
+  await page.getByRole('heading',{name:'Conectar ChatGPT e Claude'}).waitFor();
+  await page.getByText('Anthropic — Claude').waitFor();
+  await page.screenshot({path:'test-results/screenshots/05-provedores-ia.png',fullPage:true});
+  const invalid=await page.request.put(BASE+'/api/ai/providers',{data:{provider:'anthropic',apiKey:'short'}});
+  assert.equal(invalid.status(),400);
+
+  // A central deve informar status verdadeiro e impedir acesso anônimo.
   const integrations=await page.request.get(BASE+'/api/integrations/catalog');
   assert.equal(integrations.status(),200);
   const hub=await integrations.json();
