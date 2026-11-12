@@ -1,0 +1,71 @@
+name: Testes funcionais e prévia visual
+on:
+  push:
+    branches: ['chore/**', 'feat/**']
+  pull_request:
+    branches: [main, 'feat/**']
+  workflow_dispatch:
+jobs:
+  browser-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: r2r_e2e
+          POSTGRES_PASSWORD: r2r_e2e_local
+          POSTGRES_DB: r2r_e2e
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U r2r_e2e -d r2r_e2e"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      DATABASE_URL: postgresql://r2r_e2e:r2r_e2e_local@localhost:5432/r2r_e2e?schema=public
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXTAUTH_SECRET: test-only-strong-secret-never-use-in-production
+      SEED_ADMIN_EMAIL: e2e-admin@example.test
+      SEED_ADMIN_PASSWORD: strong-temporary-test-password-2026
+      SEED_TENANT_NAME: Agência de Homologação R2R
+      AUTOMATION_SECRET: temporary-automation-secret-only-for-e2e
+      OPENAI_API_KEY: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+      - name: Preparar banco isolado
+        run: |
+          npx prisma generate
+          npx prisma db push
+          npm run db:seed
+      - name: Compilar aplicação
+        run: npm run build
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Inicializar aplicação de testes
+        run: |
+          npm run start > /tmp/r2r-next.log 2>&1 &
+          for i in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:3000/api/health >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          tail -n 100 /tmp/r2r-next.log
+          exit 1
+      - name: Testes reais frontend e backend
+        run: npm run test:e2e
+      - name: Capturas do layout
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r2r-layout-preview
+          path: test-results/screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Logs de diagnóstico (sem segredos)
+        if: failure()
+        run: tail -n 100 /tmp/r2r-next.log || true
