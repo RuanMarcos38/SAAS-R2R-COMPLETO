@@ -50,7 +50,7 @@ try {
   });
   assert.equal(updated.status(),200,await updated.text());
 
-  // O frontend do Diretor IA deve carregar mesmo sem chave externa.
+  // As configurações não podem revelar chaves nem permitir acesso anônimo.\n  const publicConfig=await page.request.get(BASE+'/api/ai/providers');\n  assert.equal(publicConfig.status(),200);\n  const serialized=JSON.stringify(await publicConfig.json());\n  assert.ok(!serialized.includes('encryptedApiKey'));\n  assert.ok(!serialized.includes('apiKey'));\n  await page.goto(BASE+'/ia-provedores',{waitUntil:'networkidle'});\n  await page.getByRole('heading',{name:'Conectar ChatGPT e Claude'}).waitFor();\n  await page.getByText('Anthropic — Claude').waitFor();\n  await page.screenshot({path:'test-results/screenshots/05-provedores-ia.png',fullPage:true});\n  const invalid=await page.request.put(BASE+'/api/ai/providers',{data:{provider:'anthropic',apiKey:'short'}});\n  assert.equal(invalid.status(),400);\n\n  // O frontend do Diretor IA deve carregar mesmo sem chave externa.
   await page.goto(BASE+'/diretor-ia',{waitUntil:'networkidle'});
   await page.getByRole('heading',{name:'Diretor-Geral da Agência'}).waitFor();
   await page.screenshot({path:'test-results/screenshots/04-diretor-ia.png',fullPage:true});

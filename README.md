@@ -76,3 +76,6 @@ Código e telas publicáveis no repositório. Os requisitos externos, credenciai
 Um Diretor-Geral com chat, entrada por áudio, transcrição, resposta falada pelo navegador, 16 perfis de agentes, fila de trabalhos e acompanhamento de entregas está na rota `/diretor-ia`. Exige configurar `OPENAI_API_KEY` no servidor para respostas verdadeiras. Worker POST `/api/director/work` deve ser agendado externamente com `x-automation-secret` para processar a fila. **Não** equivale a execução contínua pronta sem scheduler, infraestrutura e credenciais.
 
 Documentação de implementação, escopo real e pendências: [docs/DIRETOR-IA.md](docs/DIRETOR-IA.md).
+
+## Provedores Claude e OpenAI
+Conecte chaves de API no menu **Conectar ChatGPT / Claude**, com criptografia AES-256-GCM no banco por empresa (exige `AI_CREDENTIALS_ENCRYPTION_KEY`). Somente MASTER pode configurar, testar e escolher o provedor do Diretor e de cada agente. Use chaves API OpenAI e Anthropic; login pessoal nos sites não é integração automatizada. Ver [docs/PROVEDORES-IA.md](docs/PROVEDORES-IA.md).

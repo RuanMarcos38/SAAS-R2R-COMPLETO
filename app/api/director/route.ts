@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { authOptions, getIdentity } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { agentDepartments, createDirectorPlan } from '@/lib/director';
+import { resolveAI } from '@/lib/ai-providers';
 
 export const runtime = 'nodejs';
 const bodySchema = z.object({ threadId: z.string().cuid().optional(), message: z.string().trim().min(2).max(6000) });
@@ -18,7 +19,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const identity = getIdentity(await getServerSession(authOptions));
   if (!identity) return NextResponse.json({ error:'Não autenticado' }, {status:401});
-  if (!process.env.OPENAI_API_KEY) return NextResponse.json({error:'Configure OPENAI_API_KEY no ambiente do servidor para ativar a IA.'},{status:503});
+
   const body = bodySchema.safeParse(await request.json().catch(()=>null));
   if (!body.success) return NextResponse.json({error:'Mensagem inválida'},{status:400});
   const user=await db.user.findFirst({where:{id:identity.id,tenantId:identity.tenantId,active:true}});
@@ -38,8 +39,8 @@ export async function POST(request: NextRequest) {
   const history=messages.reverse().map(m=>`${m.role}: ${m.content}`).join('\n').slice(-12000);
   const context=`Dados verificáveis do CRM R2R: clientes ativos=${clients}; leads cadastrados=${leads}; projetos abertos=${projects}; tarefas atrasadas=${overdue}; lançamentos pagos acumulados em centavos=${bills._sum.valueCents||0}. Esse valor NÃO é faturamento mensal nem conciliação bancária.\nHistórico:\n${history}\nProprietário: ${body.data.message}`;
   let plan;
-  try { plan=await createDirectorPlan(context); }
-  catch(err){console.error('Director AI failure',err);return NextResponse.json({error:'Falha ao consultar a IA. Nenhuma tarefa foi delegada.'},{status:502});}
+  try { const provider=await resolveAI(identity.tenantId,'director'); plan=await createDirectorPlan(context,provider); }
+  catch(err){console.error('Director AI failure',err instanceof Error?err.message:'failed');return NextResponse.json({error:err instanceof Error?err.message:'Falha ao consultar a IA. Nenhuma tarefa foi delegada.'},{status:err instanceof Error&&err.message.includes('Configure uma chave')?503:502});}
   const output=await db.$transaction(async tx=>{
     await tx.directorMessage.create({data:{threadId:thread.id,role:'user',content:body.data.message}});
     await tx.directorMessage.create({data:{threadId:thread.id,role:'assistant',content:plan.reply}});
