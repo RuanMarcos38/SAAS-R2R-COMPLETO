@@ -38,3 +38,6 @@ Não colocar segredos no frontend, no Git nem em ferramentas de captura.
 
 ## Caminho ideal para chegar ao 24/7
 Worker externo em infraestrutura sempre ativa → agenda a cada minuto → executa lotes idempotentes → monitora falhas → alerta plantão; integrar posteriormente fila BullMQ/Redis, monitor de uptime e métricas de custos OpenAI.
+
+## Agendamento com GitHub Actions
+O arquivo `.github/workflows/director-scheduler.yml` oferece um acionamento a cada cinco minutos **após integração na branch padrão do GitHub**, publicação do SaaS e configuração dos segredos `DIRECTOR_APP_URL` (URL HTTPS do deploy) e `DIRECTOR_AUTOMATION_SECRET` (mesmo valor do `AUTOMATION_SECRET` do servidor). O workflow permite execução manual e falha explicitamente quando os segredos estiverem ausentes. O cron do GitHub Actions é sujeito a atrasos e não garante SLA de 24 horas; uma infraestrutura com fila e workers dedicados continua sendo a opção para operação crítica contínua.
