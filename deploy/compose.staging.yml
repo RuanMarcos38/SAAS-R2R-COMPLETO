@@ -1,0 +1,49 @@
+# Staging isolado: não expõe o PostgreSQL nem usa nomes/volumes de outros projetos.
+# Executar somente após preencher as variáveis de ambiente seguras.
+name: r2r-saas-staging
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: r2r_staging
+      POSTGRES_DB: r2r_staging
+      POSTGRES_PASSWORD: ${R2R_DB_PASSWORD:?Defina R2R_DB_PASSWORD}
+    volumes:
+      - r2r_staging_pgdata:/var/lib/postgresql/data
+    networks: [r2r_private]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U r2r_staging -d r2r_staging']
+      interval: 10s
+      timeout: 5s
+      retries: 8
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:3108:3000'
+    environment:
+      DATABASE_URL: postgresql://r2r_staging:${R2R_DB_PASSWORD:?Defina R2R_DB_PASSWORD}@database:5432/r2r_staging?schema=public
+      NEXTAUTH_URL: ${R2R_BASE_URL:?Defina R2R_BASE_URL}
+      NEXTAUTH_SECRET: ${R2R_AUTH_SECRET:?Defina R2R_AUTH_SECRET}
+      AUTOMATION_SECRET: ${R2R_AUTOMATION_SECRET:?Defina R2R_AUTOMATION_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_TEXT_MODEL: ${OPENAI_TEXT_MODEL:-gpt-5-mini}
+      OPENAI_TRANSCRIBE_MODEL: ${OPENAI_TRANSCRIBE_MODEL:-gpt-4o-mini-transcribe}
+    networks: [r2r_private]
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+networks:
+  r2r_private:
+    driver: bridge
+volumes:
+  r2r_staging_pgdata:
