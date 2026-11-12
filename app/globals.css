@@ -10,3 +10,32 @@ h1,h2,h3,p{margin-top:0}h1,h2,.brandMark{font-family:Manrope,Arial,sans-serif}h1
 .loginShell{min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 10%,#273e74,#0f1527 70%);padding:25px}.loginCard{background:#fff;border-radius:18px;padding:43px;max-width:425px;width:100%;box-shadow:0 25px 90px #0003}.loginCard .brandMark{color:#19253d;margin-bottom:22px}.loginCard h1{font-size:23px}.loginCard p{line-height:1.5;margin-bottom:26px}.loginCard .primaryBtn{width:100%;margin-top:8px}
 @media(max-width:1100px){.metricGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.featureRow{grid-template-columns:1fr}}
 @media(max-width:740px){.appShell{display:block}.sidebar{width:100%;min-width:0;max-height:none;position:relative}.sideTop{padding:14px}.sidebar nav{display:flex;overflow-x:auto;padding:8px 8px 15px}.sideSection,.sideFooter{display:none}.navItem{flex-shrink:0;margin:2px 4px}.workspace{width:100%}.topbar{height:48px;padding:0 18px}.mainContent{padding:22px 14px}.pageHeader{align-items:flex-start;flex-direction:column}.metricGrid{gap:8px}.metric{padding:15px}.metric strong{font-size:22px}.fieldRow{flex-direction:column}}
+
+/* Central de direção e agentes de IA */
+.directorGrid{display:grid;grid-template-columns:225px minmax(320px,1fr) 290px;gap:15px;align-items:stretch;height:calc(100vh - 190px);min-height:580px}
+.directorThreads,.directorConversation,.directorJobs{background:var(--paper);border:1px solid var(--line);border-radius:14px;min-height:0;overflow:hidden}
+.directorThreads,.directorJobs{padding:17px;overflow-y:auto}.directorThreads h2,.directorJobs h2{margin:0;font-size:14px}
+.threadItem{display:block;width:100%;text-align:left;border:0;background:transparent;font-size:12px;border-radius:8px;padding:11px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.threadItem.selected,.threadItem:hover{background:#eef2ff;color:#3159ba}
+.directorConversation{display:flex;flex-direction:column}
+.directorWelcome{display:flex;align-items:center;gap:12px;padding:17px 20px;border-bottom:1px solid var(--line);font-size:14px}
+.directorLogo{background:#172755;color:#fff;border-radius:12px;height:39px;width:39px;display:grid;place-items:center;font-family:Manrope;font-size:23px;font-weight:800}
+.directorMessages{padding:19px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:13px;min-height:180px}
+.directorEmpty{padding:65px 10px;text-align:center;color:var(--sub)}.directorEmpty h2{font-size:20px;color:var(--ink)}
+.suggestionRow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}
+.suggestionRow button{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;font-size:11px}
+.chatMessage{max-width:90%;padding:13px 15px;border-radius:12px;background:#f1f3f8;align-self:flex-start}
+.chatMessage.mine{align-self:flex-end;background:#eaf0ff}.chatSender{font-size:10px;font-weight:800;color:var(--accent);margin-bottom:7px}
+.chatText{font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.chatMessage .linkBtn{margin-top:11px;font-size:11px}
+.directorInput{display:flex;gap:10px;align-items:center;padding:13px 17px 6px;border-top:1px solid var(--line)}
+.directorInput textarea{flex:1;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12px;min-width:0}
+.micBtn{border:1px solid #cbd6ec;background:#eef2ff;border-radius:10px;min-width:37px;height:37px}.micBtn.rec{background:#ffe6e7;border-color:#f0a2a7;color:#bd1b2d}
+.voiceNotice{display:block;color:var(--sub);font-size:10px;padding:0 17px 12px}
+.agentJobCard{display:flex;flex-direction:column;gap:9px;padding:13px 0;border-top:1px solid var(--line)}
+.agentJobCard strong{font-size:12px}.agentJobCard>small{font-size:11px;color:var(--sub)}
+.agentJobCard .status{align-self:flex-start}.agentJobCard .primaryBtn,.agentJobCard .ghostBtn{font-size:10px;padding:7px}
+.agentJobCard summary{cursor:pointer;font-size:11px;font-weight:700;color:var(--accent)}
+.agentOutput{font:11px/1.6 'DM Sans',sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;max-height:220px;overflow-y:auto}
+@media(max-width:1250px){.directorGrid{grid-template-columns:175px minmax(280px,1fr)}.directorJobs{grid-column:1/-1;max-height:250px}.directorGrid{height:auto}.directorConversation{height:580px}}
+@media(max-width:700px){.directorGrid{display:flex;flex-direction:column}.directorThreads{max-height:150px}.directorConversation{height:520px}.directorJobs{max-height:270px}}

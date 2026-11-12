@@ -67,3 +67,43 @@ model AuditEvent {
   createdAt DateTime @default(now())
   @@index([tenantId, createdAt])
 }
+
+model DirectorThread {
+  id         String   @id @default(cuid())
+  tenantId   String
+  userId     String
+  title      String   @default("Nova conversa")
+  messages   DirectorMessage[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([tenantId, userId, updatedAt])
+}
+model DirectorMessage {
+  id         String   @id @default(cuid())
+  threadId   String
+  thread     DirectorThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  role       String
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+  @@index([threadId, createdAt])
+}
+model AgentJob {
+  id               String    @id @default(cuid())
+  tenantId         String
+  threadId         String
+  requesterId      String
+  department       String
+  title            String
+  instructions     String    @db.Text
+  status           String    @default("QUEUED")
+  requiresApproval Boolean   @default(false)
+  approvedBy       String?
+  output           String?   @db.Text
+  error            String?   @db.Text
+  attempts         Int       @default(0)
+  createdAt        DateTime  @default(now())
+  startedAt        DateTime?
+  finishedAt       DateTime?
+  @@index([tenantId, status, createdAt])
+  @@index([tenantId, threadId])
+}
