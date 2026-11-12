@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { departments } from '@/lib/catalog';
+import { invokeAI, type SelectedAI } from '@/lib/ai-providers';
 
 export const agentDepartments = departments.slice(1);
 export const agentNames = [
@@ -33,7 +34,8 @@ Se uma informação não constar do contexto, diga que é indisponível.
 Departamentos disponíveis (use somente os números):
 ${agentDepartments.map((name,i)=>`${i+1}. ${name} — ${agentNames[i]}`).join('\n')}`;
 
-export async function requestAI(system: string, input: string, format?: Record<string,unknown>): Promise<string> {
+export async function requestAI(system: string, input: string, format?: Record<string,unknown>, selected?: SelectedAI): Promise<string> {
+  if (selected) return invokeAI(selected,system,input,format);
   const key = process.env.OPENAI_API_KEY;
   if (!key) throw new Error('OPENAI_API_KEY ausente no servidor');
   const controller = new AbortController();
@@ -63,7 +65,7 @@ export async function requestAI(system: string, input: string, format?: Record<s
   } finally { clearTimeout(timeout); }
 }
 
-export async function createDirectorPlan(context: string): Promise<DirectorPlan> {
+export async function createDirectorPlan(context: string, selected?: SelectedAI): Promise<DirectorPlan> {
   const schema = {
     type: 'json_schema', name: 'director_plan', strict: true,
     schema: {
@@ -82,6 +84,6 @@ export async function createDirectorPlan(context: string): Promise<DirectorPlan>
       }, required: ['reply','tasks']
     }
   };
-  const text = await requestAI(directorPrompt, context, schema);
+  const text = await requestAI(directorPrompt, context, schema, selected);
   return directorPlanSchema.parse(JSON.parse(text));
 }

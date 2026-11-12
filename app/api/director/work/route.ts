@@ -2,6 +2,7 @@ import { NextRequest,NextResponse } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
 import { db } from '@/lib/db';
 import { agentDepartments, agentNames, requestAI } from '@/lib/director';
+import { resolveAI } from '@/lib/ai-providers';
 
 export const runtime='nodejs';
 export const maxDuration=60;
@@ -10,10 +11,13 @@ export async function POST(request:NextRequest){
  const provided=request.headers.get('x-automation-secret')||'';
  if(secret.length<24||provided.length!==secret.length||!timingSafeEqual(Buffer.from(provided),Buffer.from(secret)))
    return NextResponse.json({error:'Não autorizado'},{status:401});
- if(!process.env.OPENAI_API_KEY)return NextResponse.json({error:'OPENAI_API_KEY ausente; fila preservada'},{status:503});
+
  const awaiting=await db.agentJob.findMany({where:{status:'QUEUED',attempts:{lt:3}},orderBy:{createdAt:'asc'},take:3});
  const results:{id:string;status:string}[]=[];
  for(const job of awaiting){
+   let ai;
+   try { ai=await resolveAI(job.tenantId,job.department); }
+   catch { results.push({id:job.id,status:'PROVIDER_UNCONFIGURED'}); continue; }
    const claimed=await db.agentJob.updateMany({where:{id:job.id,status:'QUEUED',attempts:{lt:3}},data:{status:'RUNNING',startedAt:new Date(),attempts:{increment:1}}});
    if(!claimed.count)continue;
    const specialist=agentDepartments.indexOf(job.department as typeof agentDepartments[number]);
@@ -30,7 +34,7 @@ Você não acessa sistemas externos e não deve afirmar que publicou, enviou, co
 Se a tarefa depende de integração externa, explique exatamente o que falta e prepare etapas operacionais.
 É proibido tomar ações financeiras, enviar mensagens ou publicar sem integração e aprovação.
 Formate a entrega com título, análise, execução proposta, evidências e pendências.`;
-     const content=await requestAI(prompt,`Tarefa atribuída: ${job.title}\nInstruções: ${job.instructions}\nDados internos autorizados do tenant (JSON): ${JSON.stringify(context).slice(0,11500)}`);
+     const content=await requestAI(prompt,`Tarefa atribuída: ${job.title}\nInstruções: ${job.instructions}\nDados internos autorizados do tenant (JSON): ${JSON.stringify(context).slice(0,11500)}`,undefined,ai);
      await db.$transaction(async tx=>{
        await tx.agentJob.update({where:{id:job.id},data:{status:'COMPLETED',output:content.slice(0,25000),finishedAt:new Date(),error:null}});
        await tx.agencyRecord.create({data:{

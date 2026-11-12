@@ -107,3 +107,25 @@ model AgentJob {
   @@index([tenantId, status, createdAt])
   @@index([tenantId, threadId])
 }
+
+model AiProviderConnection {
+  id               String   @id @default(cuid())
+  tenantId         String
+  provider         String
+  encryptedApiKey  String   @db.Text
+  model            String
+  enabled          Boolean  @default(true)
+  verifiedAt       DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  @@unique([tenantId, provider])
+  @@index([tenantId])
+}
+model AiAgentPreference {
+  id        String   @id @default(cuid())
+  tenantId  String
+  agentKey  String
+  provider  String
+  updatedAt DateTime @updatedAt
+  @@unique([tenantId, agentKey])
+}
