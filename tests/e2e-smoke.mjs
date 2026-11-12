@@ -50,9 +50,40 @@ try {
   });
   assert.equal(updated.status(),200,await updated.text());
 
-  // As configurações não podem revelar chaves nem permitir acesso anônimo.\n  const publicConfig=await page.request.get(BASE+'/api/ai/providers');\n  assert.equal(publicConfig.status(),200);\n  const serialized=JSON.stringify(await publicConfig.json());\n  assert.ok(!serialized.includes('encryptedApiKey'));\n  assert.ok(!serialized.includes('apiKey'));\n  await page.goto(BASE+'/ia-provedores',{waitUntil:'networkidle'});\n  await page.getByRole('heading',{name:'Conectar ChatGPT e Claude'}).waitFor();\n  await page.getByText('Anthropic — Claude').waitFor();\n  await page.screenshot({path:'test-results/screenshots/05-provedores-ia.png',fullPage:true});\n  const invalid=await page.request.put(BASE+'/api/ai/providers',{data:{provider:'anthropic',apiKey:'short'}});\n  assert.equal(invalid.status(),400);\n\n  // O frontend do Diretor IA deve carregar mesmo sem chave externa.
+  // As configurações não podem revelar chaves nem permitir acesso anônimo.
+  const publicConfig=await page.request.get(BASE+'/api/ai/providers');
+  assert.equal(publicConfig.status(),200);
+  const serialized=JSON.stringify(await publicConfig.json());
+  assert.ok(!serialized.includes('encryptedApiKey'));
+  assert.ok(!serialized.includes('apiKey'));
+  await page.goto(BASE+'/ia-provedores',{waitUntil:'networkidle'});
+  await page.getByRole('heading',{name:'Conectar ChatGPT e Claude'}).waitFor();
+  await page.getByText('Anthropic — Claude').waitFor();
+  await page.screenshot({path:'test-results/screenshots/05-provedores-ia.png',fullPage:true});
+  const invalid=await page.request.put(BASE+'/api/ai/providers',{data:{provider:'anthropic',apiKey:'short'}});
+  assert.equal(invalid.status(),400);
+
+  // A central deve informar status verdadeiro e impedir acesso anônimo.
+  const integrations=await page.request.get(BASE+'/api/integrations/catalog');
+  assert.equal(integrations.status(),200);
+  const hub=await integrations.json();
+  assert.ok(hub.items.some(item=>item.id==='n8n'));
+  await page.goto(BASE+'/integracoes',{waitUntil:'networkidle'});
+  await page.getByRole('heading',{name:'Integrações e Automação'}).waitFor();
+  await page.screenshot({path:'test-results/screenshots/06-integracoes.png',fullPage:true});
+
+  // Endpoint de áudio exige sessão e payload válido antes de chamar API externa.
+  const noText=await page.request.post(BASE+'/api/director/audio/speak',{data:{text:''}});
+  assert.equal(noText.status(),400);
+  const noSpeechKey=await page.request.post(BASE+'/api/director/audio/speak',{data:{text:'Teste'}});
+  assert.equal(noSpeechKey.status(),503);
+
+  // O frontend do Diretor IA deve carregar mesmo sem chave externa.
   await page.goto(BASE+'/diretor-ia',{waitUntil:'networkidle'});
   await page.getByRole('heading',{name:'Diretor-Geral da Agência'}).waitFor();
+  await page.getByText('Comando de voz').waitFor();
+  await page.getByLabel('Enviar após transcrever').check();
+  await page.getByLabel('Responder em áudio').check();
   await page.screenshot({path:'test-results/screenshots/04-diretor-ia.png',fullPage:true});
   const unconfigured=await page.request.post(BASE+'/api/director',{data:{message:'Faça um relatório comercial'}});
   assert.equal(unconfigured.status(),503,'Ausência de chave não deve simular resposta da IA');

@@ -39,3 +39,22 @@ h1,h2,h3,p{margin-top:0}h1,h2,.brandMark{font-family:Manrope,Arial,sans-serif}h1
 .agentOutput{font:11px/1.6 'DM Sans',sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;max-height:220px;overflow-y:auto}
 @media(max-width:1250px){.directorGrid{grid-template-columns:175px minmax(280px,1fr)}.directorJobs{grid-column:1/-1;max-height:250px}.directorGrid{height:auto}.directorConversation{height:580px}}
 @media(max-width:700px){.directorGrid{display:flex;flex-direction:column}.directorThreads{max-height:150px}.directorConversation{height:520px}.directorJobs{max-height:270px}}
+
+/* Comandos por voz: manter a identidade R2R, elevar a clareza da interação */
+.directorWelcome{justify-content:flex-start}.directorWelcome .status{margin-left:auto}
+.directorLive{background:#1a59cb;box-shadow:0 0 0 5px #1c69ee22}
+.voiceCommandBar{margin:10px 16px 4px;padding:12px 14px;border-radius:14px;border:1px solid #26375d;background:linear-gradient(115deg,#111b37,#192b54);display:flex;gap:12px;align-items:center;flex-wrap:wrap;color:#f2f7ff}
+.voiceOrb{width:45px;height:45px;min-width:45px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 25%,#82e9ff,#3971ee 53%,#1c3072 83%);box-shadow:0 0 16px #538cfe55;position:relative}
+.voiceOrb span{height:16px;width:16px;border-radius:50%;border:2px solid #d5efff;background:#f3f7ff99}
+.voiceOrb.isListening{animation:voicePulse 1s ease-in-out infinite}.voiceOrb.isSpeaking{animation:voicePulse 1.5s ease-in-out infinite}
+@keyframes voicePulse{0%,100%{box-shadow:0 0 0 2px #5a8aff22,0 0 12px #4b98ec44}50%{box-shadow:0 0 0 8px #4b98ec33,0 0 29px #44b3ff88}}
+.voiceCommandTitle{display:flex;flex-direction:column;gap:4px;margin-right:auto}.voiceCommandTitle strong{font-size:12px}.voiceCommandTitle small{font-size:10px;color:#a7b7da}
+.voiceToggle{display:flex;align-items:center;gap:5px;font-size:10px;color:#dce7ff;white-space:nowrap}.voiceToggle input{accent-color:#74b4ff}
+.voiceCommandBar select{background:#26365b;border:1px solid #50628b;color:#fff;border-radius:8px;padding:8px;font-size:11px;max-width:180px}
+.voiceCommandBar .ghostBtn{background:#2d426a;color:#fff;border-color:#50628b;font-size:10px;padding:8px}
+.voiceTranscript{margin:2px 17px 4px;padding:7px 11px;background:#f1f5ff;border:1px solid #e0e8fb;border-radius:8px;font-size:11px;color:#546582;max-height:70px;overflow:auto}
+.voiceTranscript strong{color:#28427b}.directorInput{padding-top:10px}.directorInput .ghostBtn{font-size:11px;padding:9px}
+.integrationGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}.integrationCard{min-height:220px;display:flex;flex-direction:column;gap:8px}.integrationCard h2{margin:2px 0;font-size:15px}.integrationCard p{line-height:1.5;color:#566277;font-size:12px;flex:1}.integrationCard .ghostBtn{display:inline-flex;align-self:flex-start;font-size:11px}
+.integrationTop{display:flex;align-items:center;justify-content:space-between;gap:8px}.integrationGlyph{display:grid;place-items:center;width:38px;height:38px;background:#e8eeff;color:#3452a5;font-size:18px;font-weight:800;border-radius:12px}
+@media(max-width:850px){.voiceCommandBar{gap:9px}.voiceCommandTitle{flex:1 0 180px}}
+@media(max-width:600px){.voiceCommandBar{margin:8px;padding:10px}.voiceToggle{flex:1 0 46%}.voiceCommandTitle{flex-basis:calc(100% - 65px)}.voiceCommandBar select{width:100%;max-width:none}}

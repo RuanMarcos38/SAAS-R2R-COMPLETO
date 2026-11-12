@@ -3,6 +3,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { db } from '@/lib/db';
 import { agentDepartments, agentNames, requestAI } from '@/lib/director';
 import { resolveAI } from '@/lib/ai-providers';
+import { notifyInternalJob } from '@/lib/n8n-events';
 
 export const runtime='nodejs';
 export const maxDuration=60;
@@ -43,6 +44,8 @@ Formate a entrega com título, análise, execução proposta, evidências e pend
        }});
        await tx.auditEvent.create({data:{tenantId:job.tenantId,actorId:job.requesterId,kind:'AGENT_JOB',targetId:job.id,action:'COMPLETED'}});
      });
+     const notification=await notifyInternalJob({tenantId:job.tenantId,jobId:job.id,department:job.department});
+     if(notification==='failed')console.warn('N8N notification not delivered for job',job.id);
      results.push({id:job.id,status:'COMPLETED'});
    }catch(e){
      const error=e instanceof Error?e.message:'Falha inesperada';
