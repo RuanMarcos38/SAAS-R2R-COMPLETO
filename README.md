@@ -71,3 +71,8 @@ Veja [docs/PLANO-DIRETOR.md](docs/PLANO-DIRETOR.md) e [docs/ACEITE.md](docs/ACEI
 ## Estado de entrega
 
 Código e telas publicáveis no repositório. Os requisitos externos, credenciais, testes end-to-end, migrações versionadas, homologação e deploy continuam pendentes. Não há dados demonstrativos inventados.
+
+## Diretor-Geral e funcionários de IA
+Um Diretor-Geral com chat, entrada por áudio, transcrição, resposta falada pelo navegador, 16 perfis de agentes, fila de trabalhos e acompanhamento de entregas está na rota `/diretor-ia`. Exige configurar `OPENAI_API_KEY` no servidor para respostas verdadeiras. Worker POST `/api/director/work` deve ser agendado externamente com `x-automation-secret` para processar a fila. **Não** equivale a execução contínua pronta sem scheduler, infraestrutura e credenciais.
+
+Documentação de implementação, escopo real e pendências: [docs/DIRETOR-IA.md](docs/DIRETOR-IA.md).
