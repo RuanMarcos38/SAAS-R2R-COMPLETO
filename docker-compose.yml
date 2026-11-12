@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: r2r
+      POSTGRES_PASSWORD: r2r_local
+      POSTGRES_DB: r2r
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - r2r_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U r2r']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  r2r_postgres:
